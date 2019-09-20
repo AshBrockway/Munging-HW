@@ -1,0 +1,116 @@
+---
+title: 'Data Munging : Data Quality Management'
+author: "Ashley Brockway"
+date: "9/18/2019"
+output: word_document
+---
+
+
+
+## __Fist Data Quality Measure__
+### _Testing for Completion_
+
+The goal of this function is to checks for the completeness of the data.  
+The function will use simpleRatio : {1 -(#expected outcomes/tot.#outcomes)} to compute a percentage of completion. 
+The defined function will take in a data frame (one that is called when running the function) The function first defines the number of columns in the called data frame with ncol, and then, using a for loop
+looks through all of the columns and finds the total missing entries in each column, as well as the total number of rows within the column.
+Then, the the loop finds the perecent completness of the column. This tests all of the columns in the data frame. Then 
+prints their completeness. 
+```{r}
+simpleRatio <- function(df){
+  n <- ncol(df)               
+  for (i in 1:n){
+  expected <- sum(is.na(df[,i]))
+  totalOutcomes <- length(df[,i])
+  percentComplete <- 1 - (expected%in%   totalOutcomes)/totalOutcomes
+  print(percentComplete)
+  }
+  # n
+}
+
+```
+
+### _Example of Function in Action_ 
+
+ This is an example of the function above calling a dataset from base r. 
+ The data set airquality was chosen because it had missing values. 
+ The results are listed as the percnt complete values for each of the columns (during the testing period of this function I included n after the    loop, I left it commented out because it serves no real purpose in running the function unless you are unsure of how many columns your dataset 
+ has).
+
+```{r}
+simpleRatio <- function(df){
+  n <- ncol(df)
+  for (i in 1:n){
+    expected <- sum(is.na(df[,i]))
+    totalOutcomes <- length(df[,i])
+    percentComplete <- 1- (expected/totalOutcomes)
+    print(percentComplete)
+  }
+ # n
+}
+
+simpleRatio(airquality)
+
+
+```
+
+## __Second Data Quality Measure__ 
+### _Testing for Consistency_ 
+
+The goal of this function is to checks for the completeness of the data.  
+The function will use simpleRatio : {1 -(#expected outcomes/tot.#outcomes)} to compute a percentage of consistency. 
+The proposed function will call a data frame (specified when the function is called) and find the max and min values chosen to bound what I personally call _the consistent zone_. In this case, I chose to define the max value as the third quantile of the variable column, and the min value as the first quantile of the variable column. Then, the function loops through the column entries and checks if they are within the range. Since the function utlizes simpleRatio to define the percent consistency, I included a variable that counts the number of entries that are not within _the consistent zone_. 
+This count is then the numerator (or # of expected outcomes) when calculating the simpleRatio. 
+```{r}
+
+check_const <- function(df){
+  n <- ncol(df)
+  maxval <- quantile(n, 0.75)
+  minval <- quantile(n, 0.25)
+  consist = 0
+  for (i in 1:n) {
+    totalOutcomes <- length(df[,i])
+    if ( i > maxval){
+      consist = consist + 1 
+    } 
+    if (i < minval){
+      consist = consist +1 
+    }
+  print(consist)
+  print(1- (consist/totalOutcomes ))
+  }
+}
+
+
+
+
+```
+
+### _Example of Function in Action_
+
+  To show this function in action, I loaded the airquality dataset from base r, because it was on my mind after the first question. 
+  The results of this function are the percent consistencies of each column in the called data frame. I included a line within the loop that prints   the consist variable to show how many entries in each column were outside of the defined bounds (to check my work and make sure that each part of   the function was working the way I thought it did). It would be the most useful when exploring a new dataset.
+```{r}
+
+check_const <- function(df){
+  n <- ncol(df)
+  maxval <- quantile(n, 0.75)
+  minval <- quantile(n, 0.25)
+  consist = 0
+  for (i in 1:n) {
+    totalOutcomes <- length(df[,i])
+    if ( i > maxval){
+      consist = consist + 1 
+    } 
+    if (i < minval){
+      consist = consist +1 
+    }
+  # print(consist)
+  print(1- (consist/totalOutcomes ))
+  }
+}
+
+check_const(airquality)
+
+
+```
